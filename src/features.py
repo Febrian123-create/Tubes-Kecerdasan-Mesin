@@ -6,6 +6,50 @@ These are applied before encode_features / normalize_features.
 import pandas as pd
 import numpy as np
 
+# ── loan_grade derivation ─────────────────────────────────────────────────────
+# Thresholds derived from Section 10 of 01_eda.ipynb:
+# midpoint between adjacent grade medians (A=7.49, B=10.99, C=13.48,
+# D=15.31, E=16.82, F=18.54, G=20.16).
+_GRADE_THRESHOLDS = [9.24, 12.24, 14.40, 16.07, 17.68, 19.35]
+_GRADE_LABELS     = [1,    2,     3,     4,     5,     6,     7]   # A=1 .. G=7
+
+
+def derive_loan_grade(loan_int_rate: float) -> int:
+    """
+    Map a loan interest rate (%) to an integer loan_grade (A=1 .. G=7).
+    Uses midpoint thresholds between adjacent grade medians from EDA.
+    """
+    for threshold, grade in zip(_GRADE_THRESHOLDS, _GRADE_LABELS):
+        if loan_int_rate < threshold:
+            return grade
+    return 7  # G
+
+
+def prepare_inference_input(raw_input: dict) -> dict:
+    """
+    Prepare a raw applicant dict for model inference:
+      - Auto-derive loan_grade from loan_int_rate (never ask the applicant).
+      - Auto-calculate loan_percent_income if not provided.
+    Returns a new dict ready to pass into the preprocessing pipeline.
+    """
+    data = dict(raw_input)
+
+    # Derive loan_grade — always overwrite even if caller passed one
+    if "loan_int_rate" in data and data["loan_int_rate"] is not None:
+        data["loan_grade"] = derive_loan_grade(float(data["loan_int_rate"]))
+    else:
+        raise ValueError("loan_int_rate is required to derive loan_grade")
+
+    # Calculate loan_percent_income if absent or None
+    if data.get("loan_percent_income") is None:
+        income = float(data.get("person_income", 0))
+        amnt   = float(data.get("loan_amnt", 0))
+        data["loan_percent_income"] = round(amnt / income, 4) if income > 0 else 0.0
+
+    return data
+
+
+# ── domain-informed derived features ─────────────────────────────────────────
 
 def add_derived_features(df: pd.DataFrame) -> pd.DataFrame:
     """
