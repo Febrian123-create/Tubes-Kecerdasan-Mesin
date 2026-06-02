@@ -1,0 +1,68 @@
+version: "3.8"
+
+# Shared model/data volumes for agents that need them
+x-model-volumes: &model-volumes
+  - ./models:/app/models
+  - ./data:/app/data
+
+services:
+
+  agent1:
+    build: .
+    command: uvicorn agents.agent1_scoring:app --host 0.0.0.0 --port 8001 --reload
+    ports:
+      - "8001:8001"
+    volumes: *model-volumes
+    environment:
+      PYTHONPATH: /app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  agent2:
+    build: .
+    command: uvicorn agents.agent2_decision:app --host 0.0.0.0 --port 8002 --reload
+    ports:
+      - "8002:8002"
+    environment:
+      PYTHONPATH: /app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  agent3:
+    build: .
+    command: uvicorn agents.agent3_insight:app --host 0.0.0.0 --port 8003 --reload
+    ports:
+      - "8003:8003"
+    environment:
+      PYTHONPATH: /app
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  orchestrator:
+    build: .
+    command: uvicorn api.orchestrator:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    depends_on:
+      agent1:
+        condition: service_healthy
+      agent2:
+        condition: service_healthy
+      agent3:
+        condition: service_healthy
+    environment:
+      PYTHONPATH: /app
+      AGENT1_URL: http://agent1:8001
+      AGENT2_URL: http://agent2:8002
+      AGENT3_URL: http://agent3:8003
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
