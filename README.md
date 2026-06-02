@@ -36,7 +36,7 @@ pip install -r requirements.txt
 python src/preprocessing.py
 ```
 
-## Prompt 2 — Traditional ML + TabNet
+## Traditional ML + TabNet
 
 File tambahan untuk fase model:
 
