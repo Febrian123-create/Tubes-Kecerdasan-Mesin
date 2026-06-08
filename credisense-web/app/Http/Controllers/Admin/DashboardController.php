@@ -11,7 +11,7 @@ class DashboardController extends Controller
     {
         $stats = [
             'total'    => LoanApplication::count(),
-            'pending'  => LoanApplication::whereIn('status', ['pending', 'enriched'])->count(),
+            'pending'  => LoanApplication::where('status', 'pending')->count(),
             'approved' => LoanApplication::where('status', 'approved')->count(),
             'rejected' => LoanApplication::where('status', 'rejected')->count(),
             'review'   => LoanApplication::where('status', 'review')->count(),

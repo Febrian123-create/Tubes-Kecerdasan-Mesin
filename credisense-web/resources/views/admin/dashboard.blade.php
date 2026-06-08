@@ -46,7 +46,6 @@
                 @php
                     $cfg = [
                         'pending'  => ['dot'=>'bg-amber-400',  'badge'=>'bg-amber-100 text-amber-700',  'label'=>'Pending'],
-                        'enriched' => ['dot'=>'bg-blue-400',   'badge'=>'bg-blue-100 text-blue-700',    'label'=>'Diproses'],
                         'scored'   => ['dot'=>'bg-purple-400', 'badge'=>'bg-purple-100 text-purple-700','label'=>'Scored'],
                         'approved' => ['dot'=>'bg-green-500',  'badge'=>'bg-green-100 text-green-700',  'label'=>'Approved'],
                         'rejected' => ['dot'=>'bg-red-500',    'badge'=>'bg-red-100 text-red-700',      'label'=>'Rejected'],
@@ -76,17 +75,10 @@
                             <span class="text-gray-400">{{ $app->created_at->format('d M Y') }}</span>
                         </div>
                     </div>
-                    @if($app->status === 'pending')
-                        <a href="{{ route('admin.applications.enrich', $app) }}"
-                           class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-sm shrink-0">
-                            Verifikasi SLIK
-                        </a>
-                    @else
-                        <a href="{{ route('admin.applications.show', $app) }}"
-                           class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium px-3.5 py-2 rounded-xl transition shrink-0">
-                            Detail
-                        </a>
-                    @endif
+                    <a href="{{ route('admin.applications.show', $app) }}"
+                       class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium px-3.5 py-2 rounded-xl transition shrink-0">
+                        Detail
+                    </a>
                 </div>
                 @endforeach
             </div>

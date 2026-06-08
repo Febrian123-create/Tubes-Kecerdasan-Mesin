@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\ApplicationController as AdminApplicationController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\EnrichController;
 use App\Http\Controllers\LoanApplicationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WalletController;
@@ -28,8 +27,6 @@ Route::middleware(['auth', 'role:borrower'])->prefix('borrower')->name('borrower
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('applications', AdminApplicationController::class)->only(['index', 'show']);
-    Route::get('applications/{application}/enrich', [EnrichController::class, 'edit'])->name('applications.enrich');
-    Route::patch('applications/{application}/enrich', [EnrichController::class, 'update'])->name('applications.enrich.update');
 });
 
 // ── Shared after-login redirect ───────────────────────────────────────────────

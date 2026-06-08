@@ -12,6 +12,7 @@ class LoanDecision extends Model
     ];
 
     protected $casts = [
+        'conditions'      => 'array',
         'rules_triggered' => 'array',
     ];
 

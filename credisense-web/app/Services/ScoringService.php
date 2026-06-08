@@ -54,10 +54,11 @@ class ScoringService
         // Call Agent 2 — decision
         $decResp = Http::timeout(30)->post(
             config('services.ml.decision_url') . '/decide',
-            array_merge($payload, [
-                'risk_score'   => $scoreData['risk_score'],
-                'risk_category' => $scoreData['risk_category'],
-            ])
+            [
+                'risk_score'     => $scoreData['risk_score'],
+                'risk_category'  => $scoreData['risk_category'],
+                'applicant_data' => array_merge($payload, ['loan_grade' => $app->loan_grade]),
+            ]
         );
 
         if (!$decResp->successful()) {

@@ -13,15 +13,21 @@
 
     <div class="p-6 space-y-5 max-w-4xl">
 
+        @if(session('success'))
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl flex items-center gap-2 text-sm">
+                <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ session('success') }}
+            </div>
+        @endif
+
         {{-- Status Banner --}}
         @php
             $banners = [
-                'pending'  => ['from-amber-500 to-orange-500',   'Menunggu Verifikasi Admin',      'SLIK OJK sedang diverifikasi oleh admin.'],
-                'enriched' => ['from-blue-500 to-indigo-600',    'Data Dilengkapi',                'Proses scoring AI sedang berjalan...'],
+                'pending'  => ['from-amber-500 to-orange-500',   'Sedang Diproses',                'Profil Anda sedang diverifikasi & dinilai oleh AI...'],
                 'scored'   => ['from-purple-500 to-indigo-600',  'Sedang Diproses',                'Model AI sedang mengevaluasi profil Anda.'],
                 'approved' => ['from-green-500 to-emerald-600',  'Pengajuan Disetujui ✓',          'Selamat! Kredit Anda telah disetujui.'],
                 'rejected' => ['from-red-500 to-rose-600',       'Pengajuan Ditolak',              'Maaf, kredit tidak dapat disetujui saat ini.'],
-                'review'   => ['from-orange-500 to-amber-600',   'Perlu Tinjauan Manual',          'Tim kami akan menghubungi Anda.'],
+                'review'   => ['from-orange-500 to-amber-600',   'Perlu Tinjauan Manual',          'Tim kami akan menghubungi Anda untuk verifikasi lebih lanjut.'],
             ];
             [$gradient, $title, $subtitle] = $banners[$application->status] ?? ['from-gray-500 to-gray-600', $application->status, ''];
         @endphp
@@ -124,7 +130,7 @@
                 <p class="text-sm text-gray-600">Jumlah Disetujui: <span class="font-bold text-green-700 text-base">Rp {{ number_format($application->loanDecision->approved_amount) }}</span></p>
             @endif
             @if($application->loanDecision->conditions)
-                <p class="text-sm text-gray-600 mt-1">Kondisi: {{ $application->loanDecision->conditions }}</p>
+                <p class="text-sm text-gray-600 mt-1">Kondisi: {{ implode(', ', $application->loanDecision->conditions) }}</p>
             @endif
             @if($application->loanDecision->decline_reason)
                 <p class="text-sm text-gray-600 mt-1">Alasan: {{ $application->loanDecision->decline_reason }}</p>

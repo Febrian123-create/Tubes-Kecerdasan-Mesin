@@ -30,7 +30,7 @@
             @php
                 $total    = $applications->count();
                 $approved = $applications->where('status','approved')->count();
-                $pending  = $applications->whereIn('status',['pending','enriched','scored'])->count();
+                $pending  = $applications->whereIn('status',['pending','scored'])->count();
             @endphp
             <div class="grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-blue-500/40">
                 <div class="text-center"><p class="text-2xl font-bold">{{ $total }}</p><p class="text-blue-200 text-xs">Total</p></div>
@@ -63,8 +63,7 @@
                     @foreach($applications as $app)
                     @php
                         $cfg = [
-                            'pending'  => ['left-bar'=>'bg-amber-400',  'badge'=>'bg-amber-100 text-amber-700',  'label'=>'Menunggu Verifikasi'],
-                            'enriched' => ['left-bar'=>'bg-blue-400',   'badge'=>'bg-blue-100 text-blue-700',    'label'=>'Sedang Diproses'],
+                            'pending'  => ['left-bar'=>'bg-amber-400',  'badge'=>'bg-amber-100 text-amber-700',  'label'=>'Sedang Diproses'],
                             'scored'   => ['left-bar'=>'bg-purple-400', 'badge'=>'bg-purple-100 text-purple-700','label'=>'Menunggu Keputusan'],
                             'approved' => ['left-bar'=>'bg-green-500',  'badge'=>'bg-green-100 text-green-700',  'label'=>'Disetujui ✓'],
                             'rejected' => ['left-bar'=>'bg-red-500',    'badge'=>'bg-red-100 text-red-700',      'label'=>'Ditolak'],

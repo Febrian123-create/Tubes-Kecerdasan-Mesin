@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\ScoringJob;
 use App\Models\AuditLog;
 use App\Models\LoanApplication;
+use App\Services\SlikSimulator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -28,7 +29,7 @@ class LoanApplicationController extends Controller
         return view('borrower.applications.create', compact('products'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, SlikSimulator $slik)
     {
         $products = config('loan_products');
 
@@ -57,16 +58,21 @@ class LoanApplicationController extends Controller
             ]);
         }
 
+        // loan_percent_income is stored as decimal(5,4), so the ratio can't exceed 9.9999
+        if ($validated['loan_amnt'] / $validated['person_income'] > 9.9999) {
+            return back()->withInput()->withErrors([
+                'loan_amnt' => 'Jumlah pinjaman terlalu besar dibandingkan pendapatan yang Anda input. Mohon sesuaikan jumlah pinjaman atau pendapatan.',
+            ]);
+        }
+
         $validated['loan_int_rate'] = $product['rate'];
         $validated['user_id']       = Auth::id();
         $validated['status']        = 'pending';
 
         // Auto-compute loan_percent_income
-        if ($validated['person_income'] > 0) {
-            $validated['loan_percent_income'] = round(
-                $validated['loan_amnt'] / $validated['person_income'], 4
-            );
-        }
+        $validated['loan_percent_income'] = round(
+            $validated['loan_amnt'] / $validated['person_income'], 4
+        );
 
         $app = LoanApplication::create($validated);
 
@@ -79,8 +85,30 @@ class LoanApplicationController extends Controller
             'payload'             => ['loan_amnt' => $app->loan_amnt, 'loan_intent' => $app->loan_intent],
         ]);
 
-        return redirect()->route('borrower.applications.show', $app)
-            ->with('success', 'Pengajuan pinjaman berhasil dikirim. Menunggu verifikasi admin.');
+        // Simulated SLIK OJK bureau check (auto, replaces manual admin entry — demo only)
+        $slikData = $slik->check($app);
+        $app->update($slikData);
+
+        AuditLog::create([
+            'user_id'             => null,
+            'loan_application_id' => $app->id,
+            'action'              => 'system.slik_checked',
+            'actor_role'          => 'system',
+            'payload'             => array_merge($slikData, ['note' => 'Simulasi demo — bukan data SLIK OJK asli']),
+        ]);
+
+        $app->update(['status' => 'scored']);
+
+        try {
+            ScoringJob::dispatchSync($app);
+            $message = 'Pengajuan pinjaman berhasil dikirim. Hasil penilaian AI sudah tersedia di bawah.';
+        } catch (\Throwable $e) {
+            // ScoringJob already records the error and resets status to 'pending' on failure
+            $message = 'Pengajuan pinjaman berhasil dikirim. Penilaian AI sedang diproses, silakan refresh beberapa saat lagi.';
+        }
+
+        return redirect()->route('borrower.applications.show', $app->fresh())
+            ->with('success', $message);
     }
 
     public function show(LoanApplication $application)

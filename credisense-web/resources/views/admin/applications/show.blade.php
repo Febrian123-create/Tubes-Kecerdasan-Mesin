@@ -132,7 +132,7 @@
                     </div>
                 @endif
                 @if($application->loanDecision->conditions)
-                    <p class="text-white/80 text-sm mt-3">Kondisi: {{ $application->loanDecision->conditions }}</p>
+                    <p class="text-white/80 text-sm mt-3">Kondisi: {{ implode(', ', $application->loanDecision->conditions) }}</p>
                 @endif
                 @if($application->loanDecision->decline_reason)
                     <p class="text-white/80 text-sm mt-3">Alasan: {{ $application->loanDecision->decline_reason }}</p>

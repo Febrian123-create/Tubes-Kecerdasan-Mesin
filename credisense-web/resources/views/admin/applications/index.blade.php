@@ -23,7 +23,6 @@
                         @php
                             $cfg = [
                                 'pending'  => ['bg-amber-100 text-amber-700',  'Pending'],
-                                'enriched' => ['bg-blue-100 text-blue-700',    'Diproses'],
                                 'scored'   => ['bg-purple-100 text-purple-700','Scored'],
                                 'approved' => ['bg-green-100 text-green-700',  'Approved'],
                                 'rejected' => ['bg-red-100 text-red-700',      'Rejected'],
@@ -79,17 +78,10 @@
                             </td>
                             <td class="px-5 py-4 text-xs text-gray-400 whitespace-nowrap">{{ $app->created_at->format('d M Y') }}</td>
                             <td class="px-5 py-4 text-right">
-                                @if($app->status === 'pending')
-                                    <a href="{{ route('admin.applications.enrich', $app) }}"
-                                       class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition">
-                                        Verifikasi
-                                    </a>
-                                @else
-                                    <a href="{{ route('admin.applications.show', $app) }}"
-                                       class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs px-3 py-1.5 rounded-lg transition">
-                                        Detail
-                                    </a>
-                                @endif
+                                <a href="{{ route('admin.applications.show', $app) }}"
+                                   class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs px-3 py-1.5 rounded-lg transition">
+                                    Detail
+                                </a>
                             </td>
                         </tr>
                         @endforeach
