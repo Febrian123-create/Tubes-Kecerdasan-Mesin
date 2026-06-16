@@ -58,8 +58,8 @@ def train():
     print(classification_report(y_test, y_pred, target_names=["Good", "Default"]))
 
     print("\n[4/4] Saving model artefacts...")
-    model_path = os.path.join(MODELS_DIR, "best_model.pkl")
-    meta_path  = os.path.join(MODELS_DIR, "best_model_metadata.pkl")
+    model_path = os.path.join(MODELS_DIR, "best_model_baseline.pkl")
+    meta_path  = os.path.join(MODELS_DIR, "best_model_baseline_metadata.pkl")
 
     joblib.dump(model, model_path)
     joblib.dump(
