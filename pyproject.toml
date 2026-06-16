@@ -1,2 +1,2 @@
 [tool.vercel]
-entrypoint = "api.orchestrator:app"
+entrypoint = "api/orchestrator.py:app"
