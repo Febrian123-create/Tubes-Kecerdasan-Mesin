@@ -85,7 +85,7 @@ Windows PowerShell:
 Git Bash / Linux / macOS:
 
 ```bash
-source .venv/bin/activate
+source .venv/Scripts/activate
 ```
 
 3. Install dependency.
